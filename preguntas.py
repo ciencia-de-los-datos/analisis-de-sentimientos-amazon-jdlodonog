@@ -21,22 +21,31 @@ def pregunta_01():
     # Lea el archivo `amazon_cells_labelled.tsv` y cree un DataFrame usando pandas.
     # Etiquete la primera columna como `msg` y la segunda como `lbl`. Esta función
     # retorna el dataframe con las dos columnas.
-    df = ____(
-        ____,
-        sep=____,
-        header=____,
-        names=____,
+    df = pd.read_csv(
+        "amazon_cells_labelled.tsv",
+        sep="\t",
+        #header="int",
+        names=["msg","lbl",],
     )
+    print(df.info())
 
     # Separe los grupos de mensajes etiquetados y no etiquetados.
-    df_tagged = ____[____["____"].____()]
-    df_untagged = ____[____["____"].____()]
+    df_tagged = df[df["lbl"].notna()] #los que no son nan
+    df_untagged = df[df["lbl"].isna()]#los que son nan
 
-    x_tagged = ____["____"]
-    y_tagged = ____["____"]
+    x_tagged =df_tagged["msg"] #coge los valores de los mensajes para los que df no son nan, es decir estan etiquetados
+    print("x_tagged")
+    print(len(x_tagged))
+    y_tagged = df_tagged["lbl"]
+    print("y_tagged")
+    print(len(y_tagged))
 
-    x_untagged = ____["____"]
-    y_untagged = ____["____"]
+    x_untagged = df_untagged["msg"]
+    print("x_untagged")
+    print(len(x_untagged))
+    y_untagged = df_untagged["lbl"]
+    print("y_untagged")
+    print(len(y_untagged))
 
     # Retorne los grupos de mensajes
     return x_tagged, y_tagged, x_untagged, y_untagged
