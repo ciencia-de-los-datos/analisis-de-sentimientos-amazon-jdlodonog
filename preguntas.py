@@ -83,13 +83,14 @@ def pregunta_03():
     """
     # Importe el stemmer de Porter
     # Importe CountVectorizer
-    from ____ import ____
+    from nltk.stem.porter import PorterStemmer
+    from sklearn.feature_extraction.text import CountVectorizer
 
     # Cree un stemeer que use el algoritmo de Porter.
-    stemmer = ____
+    stemmer = PorterStemmer() #reduce la palabra a su termino raiz
 
     # Cree una instancia del analizador de palabras (build_analyzer)
-    analyzer = ____().____()
+    analyzer = CountVectorizer().build_analyzer()
 
     # Retorne el analizador de palabras
     return lambda x: (stemmer.stem(w) for w in analyzer(x))
@@ -100,15 +101,18 @@ def pregunta_04():
     Especificación del pipeline y entrenamiento
     -------------------------------------------------------------------------------------
     """
-
     # Importe CountVetorizer
     # Importe GridSearchCV
     # Importe Pipeline
     # Importe BernoulliNB
-    from ____ import ____
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.pipeline import Pipeline
+    from sklearn.naive_bayes import BernoulliNB
+
 
     # Cargue las variables.
-    x_train, _, y_train, _ = pregunta_02()
+    x_train, x_test, y_train, y_test = pregunta_02()
 
     # Obtenga el analizador de la pregunta 3.
     analyzer = pregunta_03()
@@ -118,21 +122,22 @@ def pregunta_04():
     # límite superior para la frecuencia de palabras es del 100% y un límite
     # inferior de 5 palabras. Solo deben analizarse palabras conformadas por
     # letras.
-    countVectorizer = ____(
-        analyzer=____,
-        lowercase=____,
-        stop_words=____,
-        token_pattern=____,
-        binary=____,
-        max_df=____,
-        min_df=____,
+    countVectorizer = CountVectorizer(
+        analyzer=analyzer,#"word"
+        lowercase=True,
+        stop_words="english",
+        token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z]+\b", # esto es mas de dos letras(dos o mas caracteres)
+        binary=True,
+        #binary=True,
+        max_df=1.0,
+        min_df=5,
     )
-
+   
     # Cree un pipeline que contenga el CountVectorizer y el modelo de BernoulliNB.
-    pipeline = ____(
+    pipeline = Pipeline(
         steps=[
-            ("____", ____),
-            ("____", ____()),
+            ("countVectorizer", countVectorizer),
+            ("BernoulliNB", BernoulliNB()),
         ],
     )
 
@@ -140,23 +145,23 @@ def pregunta_04():
     # considerar 10 valores entre 0.1 y 1.0 para el parámetro alpha de
     # BernoulliNB.
     param_grid = {
-        "____": np.____(____, ____, ____),
+        "BernoulliNB__alpha": np.linspace(0.1, 1,10), #arange
     }
 
     # Defina una instancia de GridSearchCV con el pipeline y el diccionario de
     # parámetros. Use cv = 5, y "accuracy" como métrica de evaluación
-    gridSearchCV = ____(
-        estimator=____,
-        param_grid=____,
-        cv=____,
-        scoring=____,
-        refit=____,
-        return_train_score=____,
+    gridSearchCV = GridSearchCV(
+        estimator= pipeline,
+        param_grid= param_grid,
+        cv=5,
+        scoring="accuracy",
+        refit=True,
+        return_train_score=True,
     )
 
     # Búsque la mejor combinación de regresores
     gridSearchCV.fit(x_train, y_train)
-
+    print('Score: ',gridSearchCV.score(x_train, y_train).round(4))
     # Retorne el mejor modelo
     return gridSearchCV
 
